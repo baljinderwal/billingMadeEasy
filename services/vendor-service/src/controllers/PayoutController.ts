@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 
 export class PayoutController {
-  static getPayouts = asyncHandler(async (req: Request, res: Response) => {
+  static getPayouts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { page = 1, limit = 20, vendorId, status } = req.query;
     
     const payouts = [
@@ -21,7 +21,7 @@ export class PayoutController {
     res.json(ResponseUtils.paginated(payouts, Number(page), Number(limit), 1, 'Payouts retrieved successfully'));
   });
 
-  static getMyPayouts = asyncHandler(async (req: Request, res: Response) => {
+  static getMyPayouts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { page = 1, limit = 20 } = req.query;
     
@@ -39,7 +39,7 @@ export class PayoutController {
     res.json(ResponseUtils.paginated(payouts, Number(page), Number(limit), 1, 'My payouts retrieved successfully'));
   });
 
-  static getPayoutById = asyncHandler(async (req: Request, res: Response) => {
+  static getPayoutById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const payout = {
@@ -53,7 +53,7 @@ export class PayoutController {
     res.json(ResponseUtils.success(payout, 'Payout retrieved successfully'));
   });
 
-  static createPayout = asyncHandler(async (req: Request, res: Response) => {
+  static createPayout = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const payoutData = req.body;
     
     const payout = {
@@ -66,7 +66,7 @@ export class PayoutController {
     res.status(201).json(ResponseUtils.success(payout, 'Payout created successfully'));
   });
 
-  static processPayout = asyncHandler(async (req: Request, res: Response) => {
+  static processPayout = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const payout = {
@@ -78,7 +78,7 @@ export class PayoutController {
     res.json(ResponseUtils.success(payout, 'Payout processing initiated'));
   });
 
-  static completePayout = asyncHandler(async (req: Request, res: Response) => {
+  static completePayout = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { transactionId } = req.body;
     

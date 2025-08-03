@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
-import { VendorQuery } from '@billing/types';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
+import { VendorQuery } from '../../../../shared/types/dist/index.js';
 import Vendor from '../models/Vendor';
 
 export class VendorController {
-  static getVendors = asyncHandler(async (req: Request, res: Response) => {
+  static getVendors = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const query = req.query as VendorQuery;
     const { page = 1, limit = 20, sort = 'createdAt', order = 'desc' } = query;
 
@@ -31,7 +31,7 @@ export class VendorController {
     res.json(ResponseUtils.paginated(vendors, Number(page), Number(limit), total, 'Vendors retrieved successfully'));
   });
 
-  static getMyVendor = asyncHandler(async (req: Request, res: Response) => {
+  static getMyVendor = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
 
     const vendor = await Vendor.findOne({ userId })
@@ -39,17 +39,19 @@ export class VendorController {
       .lean();
 
     if (!vendor) {
-      return res.status(404).json(ResponseUtils.error('Vendor profile not found'));
+      res.status(404).json(ResponseUtils.error('Vendor profile not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(vendor, 'Vendor profile retrieved successfully'));
   });
 
-  static getVendorById = asyncHandler(async (req: Request, res: Response) => {
+  static getVendorById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      return;
     }
 
     const vendor = await Vendor.findById(id)
@@ -57,19 +59,21 @@ export class VendorController {
       .lean();
 
     if (!vendor) {
-      return res.status(404).json(ResponseUtils.error('Vendor not found'));
+      res.status(404).json(ResponseUtils.error('Vendor not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(vendor, 'Vendor retrieved successfully'));
   });
 
-  static createVendor = asyncHandler(async (req: Request, res: Response) => {
+  static createVendor = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const vendorData = req.body;
     const userId = req.user?.userId;
 
     const existingVendor = await Vendor.findOne({ userId });
     if (existingVendor) {
-      return res.status(400).json(ResponseUtils.error('Vendor profile already exists'));
+      res.status(400).json(ResponseUtils.error('Vendor profile already exists'));
+      return;
     }
 
     vendorData.userId = userId;
@@ -84,18 +88,20 @@ export class VendorController {
     res.status(201).json(ResponseUtils.success(populatedVendor, 'Vendor created successfully'));
   });
 
-  static updateVendor = asyncHandler(async (req: Request, res: Response) => {
+  static updateVendor = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
     const userId = req.user?.userId;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      return;
     }
 
     const vendor = await Vendor.findOne({ _id: id, userId });
     if (!vendor) {
-      return res.status(404).json(ResponseUtils.error('Vendor not found or unauthorized'));
+      res.status(404).json(ResponseUtils.error('Vendor not found or unauthorized'));
+      return;
     }
 
     Object.assign(vendor, updates);
@@ -108,12 +114,13 @@ export class VendorController {
     res.json(ResponseUtils.success(populatedVendor, 'Vendor updated successfully'));
   });
 
-  static updateKycStatus = asyncHandler(async (req: Request, res: Response) => {
+  static updateKycStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { kycStatus, notes } = req.body;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      return;
     }
 
     const vendor = await Vendor.findByIdAndUpdate(
@@ -123,18 +130,20 @@ export class VendorController {
     ).populate('userId', 'firstName lastName email');
 
     if (!vendor) {
-      return res.status(404).json(ResponseUtils.error('Vendor not found'));
+      res.status(404).json(ResponseUtils.error('Vendor not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(vendor, 'KYC status updated successfully'));
   });
 
-  static updateStatus = asyncHandler(async (req: Request, res: Response) => {
+  static updateStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { status } = req.body;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      return;
     }
 
     const vendor = await Vendor.findByIdAndUpdate(
@@ -144,22 +153,25 @@ export class VendorController {
     ).populate('userId', 'firstName lastName email');
 
     if (!vendor) {
-      return res.status(404).json(ResponseUtils.error('Vendor not found'));
+      res.status(404).json(ResponseUtils.error('Vendor not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(vendor, 'Vendor status updated successfully'));
   });
 
-  static getVendorAnalytics = asyncHandler(async (req: Request, res: Response) => {
+  static getVendorAnalytics = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      return;
     }
 
     const vendor = await Vendor.findById(id);
     if (!vendor) {
-      return res.status(404).json(ResponseUtils.error('Vendor not found'));
+      res.status(404).json(ResponseUtils.error('Vendor not found'));
+      return;
     }
 
     const analytics = {
@@ -174,28 +186,30 @@ export class VendorController {
     res.json(ResponseUtils.success(analytics, 'Vendor analytics retrieved successfully'));
   });
 
-  static getVendorProducts = asyncHandler(async (req: Request, res: Response) => {
+  static getVendorProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { page = 1, limit = 20 } = req.query;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      return;
     }
 
-    const products = [];
+    const products: any[] = [];
 
     res.json(ResponseUtils.paginated(products, Number(page), Number(limit), 0, 'Vendor products retrieved successfully'));
   });
 
-  static getVendorOrders = asyncHandler(async (req: Request, res: Response) => {
+  static getVendorOrders = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { page = 1, limit = 20 } = req.query;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      res.status(400).json(ResponseUtils.error('Invalid vendor ID'));
+      return;
     }
 
-    const orders = [];
+    const orders: any[] = [];
 
     res.json(ResponseUtils.paginated(orders, Number(page), Number(limit), 0, 'Vendor orders retrieved successfully'));
   });

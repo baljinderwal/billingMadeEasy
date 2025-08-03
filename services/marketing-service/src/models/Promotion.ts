@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IPromotion } from '@billing/types';
+import { IPromotion } from '../../../../shared/types/dist/index.js';
 
 const promotionSchema = new Schema<IPromotion>({
   name: { type: String, required: true },

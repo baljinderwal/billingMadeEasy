@@ -1,6 +1,6 @@
 import express from 'express';
 import { CampaignController } from '../controllers/CampaignController';
-import { authenticate, authorize } from '@billing/middleware';
+import { authenticate, authorize } from '../../../../shared/middleware/dist/index.js';
 
 const router = express.Router();
 

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ResponseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import Analytics from '../models/Analytics';
 
 export class ReportsController {
-  static getReports = asyncHandler(async (req: Request, res: Response) => {
+  static getReports = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const reports = [
       {
         id: 'sales-report',
@@ -39,7 +39,7 @@ export class ReportsController {
     res.json(ResponseUtils.success(reports, 'Reports retrieved successfully'));
   });
 
-  static getSalesReport = asyncHandler(async (req: Request, res: Response) => {
+  static getSalesReport = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { startDate, endDate, period = 'daily' } = req.query;
 
     const analytics = await Analytics.find({
@@ -53,8 +53,8 @@ export class ReportsController {
 
     const report = {
       summary: {
-        totalRevenue: analytics.reduce((sum, item) => sum + (item.metrics.get('revenue') || 0), 0),
-        totalOrders: analytics.reduce((sum, item) => sum + (item.metrics.get('orders') || 0), 0),
+        totalRevenue: analytics.reduce((sum, item) => sum + ((item.metrics as any)?.revenue || 0), 0),
+        totalOrders: analytics.reduce((sum, item) => sum + ((item.metrics as any)?.orders || 0), 0),
         averageOrderValue: 0,
         period: `${startDate} to ${endDate}`
       },
@@ -72,7 +72,7 @@ export class ReportsController {
     res.json(ResponseUtils.success(report, 'Sales report generated successfully'));
   });
 
-  static getInventoryReport = asyncHandler(async (req: Request, res: Response) => {
+  static getInventoryReport = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const report = {
       summary: {
         totalProducts: 0,
@@ -88,7 +88,7 @@ export class ReportsController {
     res.json(ResponseUtils.success(report, 'Inventory report generated successfully'));
   });
 
-  static getCustomerReport = asyncHandler(async (req: Request, res: Response) => {
+  static getCustomerReport = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { startDate, endDate } = req.query;
 
     const analytics = await Analytics.find({
@@ -101,8 +101,8 @@ export class ReportsController {
 
     const report = {
       summary: {
-        totalCustomers: analytics.reduce((sum, item) => sum + (item.metrics.get('newCustomers') || 0), 0),
-        returningCustomers: analytics.reduce((sum, item) => sum + (item.metrics.get('returningCustomers') || 0), 0),
+        totalCustomers: analytics.reduce((sum, item) => sum + ((item.metrics as any)?.newCustomers || 0), 0),
+        returningCustomers: analytics.reduce((sum, item) => sum + ((item.metrics as any)?.returningCustomers || 0), 0),
         customerLifetimeValue: 0,
         churnRate: 0
       },
@@ -121,7 +121,7 @@ export class ReportsController {
     res.json(ResponseUtils.success(report, 'Customer report generated successfully'));
   });
 
-  static getVendorReport = asyncHandler(async (req: Request, res: Response) => {
+  static getVendorReport = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { startDate, endDate } = req.query;
 
     const report = {
@@ -139,7 +139,7 @@ export class ReportsController {
     res.json(ResponseUtils.success(report, 'Vendor report generated successfully'));
   });
 
-  static generateReport = asyncHandler(async (req: Request, res: Response) => {
+  static generateReport = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { type, startDate, endDate, format = 'json' } = req.body;
 
     const reportId = `${type}-${Date.now()}`;
@@ -153,7 +153,7 @@ export class ReportsController {
     }, 'Report generation started'));
   });
 
-  static downloadReport = asyncHandler(async (req: Request, res: Response) => {
+  static downloadReport = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     res.json(ResponseUtils.success({

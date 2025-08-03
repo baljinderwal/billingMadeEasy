@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IReferral } from '@billing/types';
+import { IReferral } from '../../../../shared/types/dist/index.js';
 
 const referralSchema = new Schema<IReferral>({
   referrerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },

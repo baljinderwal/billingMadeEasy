@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 
 export class CommissionController {
-  static getCommissions = asyncHandler(async (req: Request, res: Response) => {
+  static getCommissions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { page = 1, limit = 20, vendorId, status } = req.query;
     
     const commissions = [
@@ -21,7 +21,7 @@ export class CommissionController {
     res.json(ResponseUtils.paginated(commissions, Number(page), Number(limit), 1, 'Commissions retrieved successfully'));
   });
 
-  static getMyCommissions = asyncHandler(async (req: Request, res: Response) => {
+  static getMyCommissions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { page = 1, limit = 20 } = req.query;
     
@@ -39,7 +39,7 @@ export class CommissionController {
     res.json(ResponseUtils.paginated(commissions, Number(page), Number(limit), 1, 'My commissions retrieved successfully'));
   });
 
-  static getCommissionById = asyncHandler(async (req: Request, res: Response) => {
+  static getCommissionById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const commission = {
@@ -55,7 +55,7 @@ export class CommissionController {
     res.json(ResponseUtils.success(commission, 'Commission retrieved successfully'));
   });
 
-  static calculateCommission = asyncHandler(async (req: Request, res: Response) => {
+  static calculateCommission = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { orderAmount, vendorId, categoryId } = req.body;
     
     const commissionRate = 10;
@@ -71,7 +71,7 @@ export class CommissionController {
     res.json(ResponseUtils.success(calculation, 'Commission calculated successfully'));
   });
 
-  static updateCommissionStatus = asyncHandler(async (req: Request, res: Response) => {
+  static updateCommissionStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { status } = req.body;
     

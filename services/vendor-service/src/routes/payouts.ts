@@ -1,6 +1,6 @@
 import express from 'express';
 import { PayoutController } from '../controllers/PayoutController';
-import { authenticate, authorize } from '@billing/middleware';
+import { authenticate, authorize } from '../../../../shared/middleware/dist/index.js';
 
 const router = express.Router();
 

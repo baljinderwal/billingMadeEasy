@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 
 export class CampaignController {
-  static getCampaigns = asyncHandler(async (req: Request, res: Response) => {
+  static getCampaigns = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const campaigns = [
       {
         id: 'campaign-1',
@@ -32,7 +32,7 @@ export class CampaignController {
     res.json(ResponseUtils.success(campaigns, 'Campaigns retrieved successfully'));
   });
 
-  static getCampaignById = asyncHandler(async (req: Request, res: Response) => {
+  static getCampaignById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const campaign = {
@@ -50,7 +50,7 @@ export class CampaignController {
     res.json(ResponseUtils.success(campaign, 'Campaign retrieved successfully'));
   });
 
-  static createCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static createCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const campaignData = req.body;
     
     const campaign = {
@@ -63,7 +63,7 @@ export class CampaignController {
     res.status(201).json(ResponseUtils.success(campaign, 'Campaign created successfully'));
   });
 
-  static updateCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static updateCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
     
@@ -76,13 +76,13 @@ export class CampaignController {
     res.json(ResponseUtils.success(campaign, 'Campaign updated successfully'));
   });
 
-  static deleteCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static deleteCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     res.json(ResponseUtils.success(null, 'Campaign deleted successfully'));
   });
 
-  static sendCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static sendCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const result = {
@@ -95,7 +95,7 @@ export class CampaignController {
     res.json(ResponseUtils.success(result, 'Campaign sending initiated'));
   });
 
-  static getCampaignStats = asyncHandler(async (req: Request, res: Response) => {
+  static getCampaignStats = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const stats = {

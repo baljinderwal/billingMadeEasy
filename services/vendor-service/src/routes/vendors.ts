@@ -1,6 +1,6 @@
 import express from 'express';
 import { VendorController } from '../controllers/VendorController';
-import { authenticate, authorize } from '@billing/middleware';
+import { authenticate, authorize } from '../../../../shared/middleware/dist/index.js';
 
 const router = express.Router();
 

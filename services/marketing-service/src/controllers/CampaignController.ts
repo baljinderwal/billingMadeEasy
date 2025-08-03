@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
-import { MarketingQuery } from '@billing/types';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
+import { MarketingQuery } from '../../../../shared/types/dist/index.js';
 import Campaign from '../models/Campaign';
 
 export class CampaignController {
-  static getCampaigns = asyncHandler(async (req: Request, res: Response) => {
+  static getCampaigns = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const query = req.query as MarketingQuery;
     const { page = 1, limit = 20, sort = 'createdAt', order = 'desc' } = query;
 
@@ -36,11 +36,12 @@ export class CampaignController {
     res.json(ResponseUtils.paginated(campaigns, page, limit, total, 'Campaigns retrieved successfully'));
   });
 
-  static getCampaignById = asyncHandler(async (req: Request, res: Response) => {
+  static getCampaignById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      return;
     }
 
     const campaign = await Campaign.findById(id)
@@ -48,13 +49,14 @@ export class CampaignController {
       .lean();
 
     if (!campaign) {
-      return res.status(404).json(ResponseUtils.error('Campaign not found'));
+      res.status(404).json(ResponseUtils.error('Campaign not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(campaign, 'Campaign retrieved successfully'));
   });
 
-  static createCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static createCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const campaignData = req.body;
     const userId = req.user?.userId;
 
@@ -70,12 +72,13 @@ export class CampaignController {
     res.status(201).json(ResponseUtils.success(populatedCampaign, 'Campaign created successfully'));
   });
 
-  static updateCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static updateCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      return;
     }
 
     const campaign = await Campaign.findByIdAndUpdate(
@@ -85,33 +88,37 @@ export class CampaignController {
     ).populate('createdBy', 'firstName lastName email');
 
     if (!campaign) {
-      return res.status(404).json(ResponseUtils.error('Campaign not found'));
+      res.status(404).json(ResponseUtils.error('Campaign not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(campaign, 'Campaign updated successfully'));
   });
 
-  static deleteCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static deleteCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      return;
     }
 
     const campaign = await Campaign.findByIdAndDelete(id);
 
     if (!campaign) {
-      return res.status(404).json(ResponseUtils.error('Campaign not found'));
+      res.status(404).json(ResponseUtils.error('Campaign not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(null, 'Campaign deleted successfully'));
   });
 
-  static launchCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static launchCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      return;
     }
 
     const campaign = await Campaign.findByIdAndUpdate(
@@ -121,17 +128,19 @@ export class CampaignController {
     );
 
     if (!campaign) {
-      return res.status(404).json(ResponseUtils.error('Campaign not found'));
+      res.status(404).json(ResponseUtils.error('Campaign not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(campaign, 'Campaign launched successfully'));
   });
 
-  static pauseCampaign = asyncHandler(async (req: Request, res: Response) => {
+  static pauseCampaign = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      return;
     }
 
     const campaign = await Campaign.findByIdAndUpdate(
@@ -141,23 +150,26 @@ export class CampaignController {
     );
 
     if (!campaign) {
-      return res.status(404).json(ResponseUtils.error('Campaign not found'));
+      res.status(404).json(ResponseUtils.error('Campaign not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(campaign, 'Campaign paused successfully'));
   });
 
-  static getCampaignMetrics = asyncHandler(async (req: Request, res: Response) => {
+  static getCampaignMetrics = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      res.status(400).json(ResponseUtils.error('Invalid campaign ID'));
+      return;
     }
 
     const campaign = await Campaign.findById(id).select('metrics').lean();
 
     if (!campaign) {
-      return res.status(404).json(ResponseUtils.error('Campaign not found'));
+      res.status(404).json(ResponseUtils.error('Campaign not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(campaign.metrics, 'Campaign metrics retrieved successfully'));

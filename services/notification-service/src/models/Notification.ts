@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { INotification } from '@billing/types';
+import { INotification } from '../../../../shared/types/dist/index.js';
 
 const notificationSchema = new Schema<INotification>({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },

@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { ICampaign } from '@billing/types';
+import { ICampaign } from '../../../../shared/types/dist/index.js';
 
 const campaignSchema = new Schema<ICampaign>({
   name: { type: String, required: true },

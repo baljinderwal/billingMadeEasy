@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IVendor } from '@billing/types';
+import { IVendor } from '../../../../shared/types/dist/index.js';
 
 const vendorSchema = new Schema<IVendor>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },

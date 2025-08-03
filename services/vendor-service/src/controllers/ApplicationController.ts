@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 
 export class ApplicationController {
-  static getApplications = asyncHandler(async (req: Request, res: Response) => {
+  static getApplications = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { page = 1, limit = 20, status } = req.query;
     
     const applications = [
@@ -27,7 +27,7 @@ export class ApplicationController {
     res.json(ResponseUtils.paginated(applications, Number(page), Number(limit), 1, 'Applications retrieved successfully'));
   });
 
-  static getApplicationById = asyncHandler(async (req: Request, res: Response) => {
+  static getApplicationById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const application = {
@@ -41,7 +41,7 @@ export class ApplicationController {
     res.json(ResponseUtils.success(application, 'Application retrieved successfully'));
   });
 
-  static createApplication = asyncHandler(async (req: Request, res: Response) => {
+  static createApplication = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const applicationData = req.body;
     const userId = req.user?.userId;
     
@@ -56,7 +56,7 @@ export class ApplicationController {
     res.status(201).json(ResponseUtils.success(application, 'Application submitted successfully'));
   });
 
-  static reviewApplication = asyncHandler(async (req: Request, res: Response) => {
+  static reviewApplication = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { notes } = req.body;
     
@@ -70,7 +70,7 @@ export class ApplicationController {
     res.json(ResponseUtils.success(application, 'Application reviewed successfully'));
   });
 
-  static approveApplication = asyncHandler(async (req: Request, res: Response) => {
+  static approveApplication = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const application = {
@@ -82,7 +82,7 @@ export class ApplicationController {
     res.json(ResponseUtils.success(application, 'Application approved successfully'));
   });
 
-  static rejectApplication = asyncHandler(async (req: Request, res: Response) => {
+  static rejectApplication = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { reason } = req.body;
     

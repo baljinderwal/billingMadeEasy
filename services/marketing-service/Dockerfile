@@ -2,10 +2,15 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --only=production
+# Copy shared packages first
+COPY ./shared ./shared
 
-COPY dist/ ./dist/
+# Copy package.json and install dependencies
+COPY ./services/marketing-service/package.json ./
+RUN npm install
+
+COPY ./services/marketing-service .
+RUN npm run build
 
 EXPOSE 3006
 

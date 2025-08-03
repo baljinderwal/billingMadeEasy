@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { ILoyaltyProgram, IUserLoyalty } from '@billing/types';
+import { ILoyaltyProgram, IUserLoyalty } from '../../../../shared/types/dist/index.js';
 
 const loyaltyProgramSchema = new Schema<ILoyaltyProgram>({
   name: { type: String, required: true },

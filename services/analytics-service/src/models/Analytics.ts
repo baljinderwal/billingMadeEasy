@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IAnalytics } from '@billing/types';
+import { IAnalytics } from '../../../../shared/types/dist/index.js';
 
 const analyticsSchema = new Schema<IAnalytics>({
   type: { 

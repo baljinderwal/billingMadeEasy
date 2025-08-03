@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 
 export class TemplateController {
-  static getTemplates = asyncHandler(async (req: Request, res: Response) => {
+  static getTemplates = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const templates = [
       {
         id: 'order-confirmation',
@@ -33,7 +33,7 @@ export class TemplateController {
     res.json(ResponseUtils.success(templates, 'Templates retrieved successfully'));
   });
 
-  static getTemplateById = asyncHandler(async (req: Request, res: Response) => {
+  static getTemplateById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     const template = {
@@ -48,7 +48,7 @@ export class TemplateController {
     res.json(ResponseUtils.success(template, 'Template retrieved successfully'));
   });
 
-  static createTemplate = asyncHandler(async (req: Request, res: Response) => {
+  static createTemplate = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const templateData = req.body;
     
     const template = {
@@ -60,7 +60,7 @@ export class TemplateController {
     res.status(201).json(ResponseUtils.success(template, 'Template created successfully'));
   });
 
-  static updateTemplate = asyncHandler(async (req: Request, res: Response) => {
+  static updateTemplate = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
     
@@ -73,13 +73,13 @@ export class TemplateController {
     res.json(ResponseUtils.success(template, 'Template updated successfully'));
   });
 
-  static deleteTemplate = asyncHandler(async (req: Request, res: Response) => {
+  static deleteTemplate = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     res.json(ResponseUtils.success(null, 'Template deleted successfully'));
   });
 
-  static previewTemplate = asyncHandler(async (req: Request, res: Response) => {
+  static previewTemplate = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { variables } = req.body;
     

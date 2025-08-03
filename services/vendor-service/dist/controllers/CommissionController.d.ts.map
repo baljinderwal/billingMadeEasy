@@ -1,0 +1,1 @@
+{"version":3,"file":"CommissionController.d.ts","sourceRoot":"","sources":["../../src/controllers/CommissionController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAI5C,qBAAa,oBAAoB;IAC/B,MAAM,CAAC,cAAc,8EAgBlB;IAEH,MAAM,CAAC,gBAAgB,8EAgBpB;IAEH,MAAM,CAAC,iBAAiB,8EAcrB;IAEH,MAAM,CAAC,mBAAmB,8EAcvB;IAEH,MAAM,CAAC,sBAAsB,8EAW1B;CACJ"}

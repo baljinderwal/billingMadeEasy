@@ -19,8 +19,6 @@
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5",
-    "@billing/types": "^1.0.0",
-    "@billing/utils": "^1.0.0"
+    "express-rate-limit": "^7.1.5"
   }
 }

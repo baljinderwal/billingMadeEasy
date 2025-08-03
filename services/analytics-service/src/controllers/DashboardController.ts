@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ResponseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import Analytics from '../models/Analytics';
 
 export class DashboardController {
-  static getOverview = asyncHandler(async (req: Request, res: Response) => {
+  static getOverview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -46,18 +46,18 @@ export class DashboardController {
 
     const overview = {
       sales: {
-        today: todaySales?.metrics.get('revenue') || 0,
-        yesterday: yesterdaySales?.metrics.get('revenue') || 0,
+        today: (todaySales?.metrics as any)?.revenue || 0,
+        yesterday: (yesterdaySales?.metrics as any)?.revenue || 0,
         change: 0
       },
       orders: {
-        today: todaySales?.metrics.get('orders') || 0,
-        yesterday: yesterdaySales?.metrics.get('orders') || 0,
+        today: (todaySales?.metrics as any)?.orders || 0,
+        yesterday: (yesterdaySales?.metrics as any)?.orders || 0,
         change: 0
       },
       visitors: {
-        today: todayTraffic?.metrics.get('visitors') || 0,
-        yesterday: yesterdayTraffic?.metrics.get('visitors') || 0,
+        today: (todayTraffic?.metrics as any)?.visitors || 0,
+        yesterday: (yesterdayTraffic?.metrics as any)?.visitors || 0,
         change: 0
       },
       conversion: {
@@ -82,7 +82,7 @@ export class DashboardController {
     res.json(ResponseUtils.success(overview, 'Dashboard overview retrieved successfully'));
   });
 
-  static getKPIs = asyncHandler(async (req: Request, res: Response) => {
+  static getKPIs = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { period = 'daily', days = 30 } = req.query;
     const endDate = new Date();
     const startDate = new Date();
@@ -107,11 +107,11 @@ export class DashboardController {
 
     analytics.forEach(item => {
       if (item.type === 'sales') {
-        kpis.totalRevenue += item.metrics.get('revenue') || 0;
-        kpis.totalOrders += item.metrics.get('orders') || 0;
+        kpis.totalRevenue += (item.metrics as any)?.revenue || 0;
+        kpis.totalOrders += (item.metrics as any)?.orders || 0;
       }
       if (item.type === 'traffic') {
-        kpis.totalVisitors += item.metrics.get('visitors') || 0;
+        kpis.totalVisitors += (item.metrics as any)?.visitors || 0;
       }
     });
 
@@ -126,7 +126,7 @@ export class DashboardController {
     res.json(ResponseUtils.success(kpis, 'KPIs retrieved successfully'));
   });
 
-  static getChartData = asyncHandler(async (req: Request, res: Response) => {
+  static getChartData = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { type, period = 'daily', days = 30 } = req.query;
     const endDate = new Date();
     const startDate = new Date();
@@ -143,13 +143,13 @@ export class DashboardController {
 
     const chartData = analytics.map(item => ({
       date: item.date,
-      ...Object.fromEntries(item.metrics)
+      ...(item.metrics as any)
     }));
 
     res.json(ResponseUtils.success(chartData, 'Chart data retrieved successfully'));
   });
 
-  static getWidgets = asyncHandler(async (req: Request, res: Response) => {
+  static getWidgets = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const widgets = [
       {
         id: 'sales-overview',
@@ -180,18 +180,18 @@ export class DashboardController {
     res.json(ResponseUtils.success(widgets, 'Widgets retrieved successfully'));
   });
 
-  static createWidget = asyncHandler(async (req: Request, res: Response) => {
+  static createWidget = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const widgetData = req.body;
     res.status(201).json(ResponseUtils.success(widgetData, 'Widget created successfully'));
   });
 
-  static updateWidget = asyncHandler(async (req: Request, res: Response) => {
+  static updateWidget = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
     res.json(ResponseUtils.success({ id, ...updates }, 'Widget updated successfully'));
   });
 
-  static deleteWidget = asyncHandler(async (req: Request, res: Response) => {
+  static deleteWidget = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     res.json(ResponseUtils.success(null, 'Widget deleted successfully'));
   });

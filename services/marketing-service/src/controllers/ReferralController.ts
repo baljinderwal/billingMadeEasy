@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils, HelperUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import mongoose from 'mongoose';
+import { ResponseUtils, DatabaseUtils, HelperUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import Referral from '../models/Referral';
 
 export class ReferralController {
-  static getReferrals = asyncHandler(async (req: Request, res: Response) => {
+  static getReferrals = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { page = 1, limit = 20 } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -22,7 +23,7 @@ export class ReferralController {
     res.json(ResponseUtils.paginated(referrals, Number(page), Number(limit), total, 'Referrals retrieved successfully'));
   });
 
-  static getMyReferrals = asyncHandler(async (req: Request, res: Response) => {
+  static getMyReferrals = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { page = 1, limit = 20 } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
@@ -40,7 +41,7 @@ export class ReferralController {
     res.json(ResponseUtils.paginated(referrals, Number(page), Number(limit), total, 'My referrals retrieved successfully'));
   });
 
-  static generateReferralCode = asyncHandler(async (req: Request, res: Response) => {
+  static generateReferralCode = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     
     const existingReferral = await Referral.findOne({ 
@@ -50,7 +51,8 @@ export class ReferralController {
     });
 
     if (existingReferral) {
-      return res.json(ResponseUtils.success(existingReferral, 'Active referral code found'));
+      res.json(ResponseUtils.success(existingReferral, 'Active referral code found'));
+      return;
     }
 
     const code = HelperUtils.generateReferralCode();
@@ -72,7 +74,7 @@ export class ReferralController {
     res.status(201).json(ResponseUtils.success(referral, 'Referral code generated successfully'));
   });
 
-  static validateReferralCode = asyncHandler(async (req: Request, res: Response) => {
+  static validateReferralCode = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { code } = req.params;
 
     const referral = await Referral.findOne({ 
@@ -82,7 +84,8 @@ export class ReferralController {
     }).populate('referrerId', 'firstName lastName');
 
     if (!referral) {
-      return res.status(404).json(ResponseUtils.error('Invalid or expired referral code'));
+      res.status(404).json(ResponseUtils.error('Invalid or expired referral code'));
+      return;
     }
 
     res.json(ResponseUtils.success({
@@ -92,7 +95,7 @@ export class ReferralController {
     }, 'Referral code is valid'));
   });
 
-  static applyReferralCode = asyncHandler(async (req: Request, res: Response) => {
+  static applyReferralCode = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { code } = req.params;
     const { orderId } = req.body;
     const userId = req.user?.userId;
@@ -104,14 +107,16 @@ export class ReferralController {
     });
 
     if (!referral) {
-      return res.status(404).json(ResponseUtils.error('Invalid or expired referral code'));
+      res.status(404).json(ResponseUtils.error('Invalid or expired referral code'));
+      return;
     }
 
     if (referral.referrerId.toString() === userId) {
-      return res.status(400).json(ResponseUtils.error('Cannot use your own referral code'));
+      res.status(400).json(ResponseUtils.error('Cannot use your own referral code'));
+      return;
     }
 
-    referral.refereeId = userId;
+    referral.refereeId = new mongoose.Types.ObjectId(userId);
     referral.orderId = orderId;
     referral.status = 'completed';
     referral.completedAt = new Date();

@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
-import { MarketingQuery } from '@billing/types';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
+import { MarketingQuery } from '../../../../shared/types/dist/index.js';
 import Promotion from '../models/Promotion';
 
 export class PromotionController {
-  static getPromotions = asyncHandler(async (req: Request, res: Response) => {
+  static getPromotions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const query = req.query as MarketingQuery;
     const { page = 1, limit = 20, sort = 'createdAt', order = 'desc' } = query;
 
@@ -30,7 +30,7 @@ export class PromotionController {
     res.json(ResponseUtils.paginated(promotions, page, limit, total, 'Promotions retrieved successfully'));
   });
 
-  static getActivePromotions = asyncHandler(async (req: Request, res: Response) => {
+  static getActivePromotions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const now = new Date();
     
     const promotions = await Promotion.find({
@@ -44,11 +44,12 @@ export class PromotionController {
     res.json(ResponseUtils.success(promotions, 'Active promotions retrieved successfully'));
   });
 
-  static getPromotionById = asyncHandler(async (req: Request, res: Response) => {
+  static getPromotionById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      return;
     }
 
     const promotion = await Promotion.findById(id)
@@ -56,13 +57,14 @@ export class PromotionController {
       .lean();
 
     if (!promotion) {
-      return res.status(404).json(ResponseUtils.error('Promotion not found'));
+      res.status(404).json(ResponseUtils.error('Promotion not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(promotion, 'Promotion retrieved successfully'));
   });
 
-  static createPromotion = asyncHandler(async (req: Request, res: Response) => {
+  static createPromotion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const promotionData = req.body;
     const userId = req.user?.userId;
 
@@ -78,12 +80,13 @@ export class PromotionController {
     res.status(201).json(ResponseUtils.success(populatedPromotion, 'Promotion created successfully'));
   });
 
-  static updatePromotion = asyncHandler(async (req: Request, res: Response) => {
+  static updatePromotion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      return;
     }
 
     const promotion = await Promotion.findByIdAndUpdate(
@@ -93,33 +96,37 @@ export class PromotionController {
     ).populate('createdBy', 'firstName lastName email');
 
     if (!promotion) {
-      return res.status(404).json(ResponseUtils.error('Promotion not found'));
+      res.status(404).json(ResponseUtils.error('Promotion not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(promotion, 'Promotion updated successfully'));
   });
 
-  static deletePromotion = asyncHandler(async (req: Request, res: Response) => {
+  static deletePromotion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      return;
     }
 
     const promotion = await Promotion.findByIdAndDelete(id);
 
     if (!promotion) {
-      return res.status(404).json(ResponseUtils.error('Promotion not found'));
+      res.status(404).json(ResponseUtils.error('Promotion not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(null, 'Promotion deleted successfully'));
   });
 
-  static activatePromotion = asyncHandler(async (req: Request, res: Response) => {
+  static activatePromotion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      return;
     }
 
     const promotion = await Promotion.findByIdAndUpdate(
@@ -129,17 +136,19 @@ export class PromotionController {
     );
 
     if (!promotion) {
-      return res.status(404).json(ResponseUtils.error('Promotion not found'));
+      res.status(404).json(ResponseUtils.error('Promotion not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(promotion, 'Promotion activated successfully'));
   });
 
-  static deactivatePromotion = asyncHandler(async (req: Request, res: Response) => {
+  static deactivatePromotion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      res.status(400).json(ResponseUtils.error('Invalid promotion ID'));
+      return;
     }
 
     const promotion = await Promotion.findByIdAndUpdate(
@@ -149,7 +158,8 @@ export class PromotionController {
     );
 
     if (!promotion) {
-      return res.status(404).json(ResponseUtils.error('Promotion not found'));
+      res.status(404).json(ResponseUtils.error('Promotion not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(promotion, 'Promotion deactivated successfully'));
