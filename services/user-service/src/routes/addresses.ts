@@ -1,7 +1,7 @@
 import express from 'express';
 import { AddressController } from '../controllers/AddressController';
-import { authenticateToken, validateBody, validateParams, idParamSchema } from '@billing/middleware';
-import { addressValidation } from '@billing/utils';
+import { authenticateToken, validateBody, validateParams, idParamSchema } from '../../../../shared/middleware/dist/index.js';
+import { addressValidation } from '../../../../shared/utils/dist/index.js';
 
 const router = express.Router();
 

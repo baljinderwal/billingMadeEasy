@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthUtils, ResponseUtils } from '@billing/utils';
-import { JWTPayload } from '@billing/types';
+import { AuthUtils, ResponseUtils } from '../../utils/dist/index';
+import { JWTPayload } from '../../types/dist/index';
 
 declare global {
   namespace Express {
@@ -59,3 +59,6 @@ export const requireRole = (roles: string[]) => {
 export const requireAdmin = requireRole(['admin']);
 export const requireVendor = requireRole(['admin', 'vendor']);
 export const requireCustomer = requireRole(['admin', 'customer']);
+
+export const authenticate = authenticateToken;
+export const authorize = (roles: string[]) => requireRole(roles);

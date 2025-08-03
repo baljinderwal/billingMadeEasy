@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { DatabaseUtils } from '@billing/utils';
-import { corsMiddleware, errorHandler, notFoundHandler, requestLogger, apiLimiter } from '@billing/middleware';
+import { DatabaseUtils } from '../../../shared/utils/dist/index.js';
+import { corsMiddleware, errorHandler, notFoundHandler, requestLogger, apiLimiter } from '../../../shared/middleware/dist/index.js';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import addressRoutes from './routes/addresses';

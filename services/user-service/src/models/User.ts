@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IUser } from '@billing/types';
+import { IUser } from '../../../../shared/types/dist/index.js';
 
 const AddressSchema = new Schema({
   type: { type: String, enum: ['home', 'work', 'other'], required: true },

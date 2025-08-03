@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils, HelperUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils, HelperUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import Category from '../models/Category';
 
 export class CategoryController {
-  static getCategories = asyncHandler(async (req: Request, res: Response) => {
+  static getCategories = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { page = 1, limit = 50, parent } = req.query;
 
     const filter: any = { status: 'active' };
@@ -27,7 +27,7 @@ export class CategoryController {
     res.json(ResponseUtils.paginated(categories, Number(page), Number(limit), total, 'Categories retrieved successfully'));
   });
 
-  static getCategoryById = asyncHandler(async (req: Request, res: Response) => {
+  static getCategoryById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
@@ -45,7 +45,7 @@ export class CategoryController {
     res.json(ResponseUtils.success(category, 'Category retrieved successfully'));
   });
 
-  static getCategoryBySlug = asyncHandler(async (req: Request, res: Response) => {
+  static getCategoryBySlug = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { slug } = req.params;
 
     const category = await Category.findOne({ slug, status: 'active' })
@@ -59,7 +59,7 @@ export class CategoryController {
     res.json(ResponseUtils.success(category, 'Category retrieved successfully'));
   });
 
-  static createCategory = asyncHandler(async (req: Request, res: Response) => {
+  static createCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const categoryData = req.body;
 
     if (!categoryData.slug) {
@@ -67,7 +67,8 @@ export class CategoryController {
     }
 
     if (categoryData.parent && !DatabaseUtils.isValidObjectId(categoryData.parent)) {
-      return res.status(400).json(ResponseUtils.error('Invalid parent category ID'));
+      res.status(400).json(ResponseUtils.error('Invalid parent category ID'));
+      return;
     }
 
     const category = new Category(categoryData);
@@ -80,7 +81,7 @@ export class CategoryController {
     res.status(201).json(ResponseUtils.success(populatedCategory, 'Category created successfully'));
   });
 
-  static updateCategory = asyncHandler(async (req: Request, res: Response) => {
+  static updateCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
 
@@ -89,7 +90,8 @@ export class CategoryController {
     }
 
     if (updates.parent && !DatabaseUtils.isValidObjectId(updates.parent)) {
-      return res.status(400).json(ResponseUtils.error('Invalid parent category ID'));
+      res.status(400).json(ResponseUtils.error('Invalid parent category ID'));
+      return;
     }
 
     const category = await Category.findByIdAndUpdate(
@@ -105,7 +107,7 @@ export class CategoryController {
     res.json(ResponseUtils.success(category, 'Category updated successfully'));
   });
 
-  static deleteCategory = asyncHandler(async (req: Request, res: Response) => {
+  static deleteCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {

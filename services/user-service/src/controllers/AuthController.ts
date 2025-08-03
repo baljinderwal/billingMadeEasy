@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { AuthUtils, ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { AuthUtils, ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import User from '../models/User';
 
 export class AuthController {
-  static register = asyncHandler(async (req: Request, res: Response) => {
+  static register = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email, password, firstName, lastName, phone } = req.body;
 
     const existingUser = await User.findOne({ 
@@ -12,7 +12,8 @@ export class AuthController {
     });
 
     if (existingUser) {
-      return res.status(409).json(ResponseUtils.error('User already exists with this email or phone'));
+      res.status(409).json(ResponseUtils.error('User already exists with this email or phone'));
+      return;
     }
 
     const hashedPassword = await AuthUtils.hashPassword(password);
@@ -56,17 +57,19 @@ export class AuthController {
     }, 'User registered successfully'));
   });
 
-  static login = asyncHandler(async (req: Request, res: Response) => {
+  static login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json(ResponseUtils.error('Invalid credentials'));
+      res.status(401).json(ResponseUtils.error('Invalid credentials'));
+      return;
     }
 
     const isPasswordValid = await AuthUtils.comparePassword(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json(ResponseUtils.error('Invalid credentials'));
+      res.status(401).json(ResponseUtils.error('Invalid credentials'));
+      return;
     }
 
     user.lastLogin = new Date();
@@ -101,11 +104,12 @@ export class AuthController {
     }, 'Login successful'));
   });
 
-  static refreshToken = asyncHandler(async (req: Request, res: Response) => {
+  static refreshToken = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      return res.status(401).json(ResponseUtils.error('Refresh token required'));
+      res.status(401).json(ResponseUtils.error('Refresh token required'));
+      return;
     }
 
     try {
@@ -113,7 +117,8 @@ export class AuthController {
       const user = await User.findById(decoded.userId);
 
       if (!user) {
-        return res.status(401).json(ResponseUtils.error('Invalid refresh token'));
+        res.status(401).json(ResponseUtils.error('Invalid refresh token'));
+        return;
       }
 
       const newToken = AuthUtils.generateToken({
@@ -137,11 +142,11 @@ export class AuthController {
     }
   });
 
-  static logout = asyncHandler(async (req: Request, res: Response) => {
+  static logout = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     res.json(ResponseUtils.success(null, 'Logout successful'));
   });
 
-  static forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  static forgotPassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email } = req.body;
 
     const user = await User.findOne({ email });
@@ -152,19 +157,19 @@ export class AuthController {
     res.json(ResponseUtils.success(null, 'Password reset email sent'));
   });
 
-  static resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  static resetPassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { token, password } = req.body;
 
     res.json(ResponseUtils.success(null, 'Password reset successful'));
   });
 
-  static verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+  static verifyEmail = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { token } = req.body;
 
     res.json(ResponseUtils.success(null, 'Email verified successfully'));
   });
 
-  static resendVerification = asyncHandler(async (req: Request, res: Response) => {
+  static resendVerification = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email } = req.body;
 
     res.json(ResponseUtils.success(null, 'Verification email sent'));

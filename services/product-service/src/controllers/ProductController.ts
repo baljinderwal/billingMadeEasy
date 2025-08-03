@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils, HelperUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
-import { ProductQuery } from '@billing/types';
+import { ResponseUtils, DatabaseUtils, HelperUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
+import { ProductQuery } from '../../../../shared/types/dist/index.js';
 import Product from '../models/Product';
 import Category from '../models/Category';
 
 export class ProductController {
-  static getProducts = asyncHandler(async (req: Request, res: Response) => {
+  static getProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const query = req.query as ProductQuery;
     const { page = 1, limit = 20, sort = 'createdAt', order = 'desc' } = query;
 
@@ -54,11 +54,12 @@ export class ProductController {
     res.json(ResponseUtils.paginated(products, page, limit, total, 'Products retrieved successfully'));
   });
 
-  static searchProducts = asyncHandler(async (req: Request, res: Response) => {
+  static searchProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { search, page = 1, limit = 20 } = req.query;
     
     if (!search) {
-      return res.status(400).json(ResponseUtils.error('Search query is required'));
+      res.status(400).json(ResponseUtils.error('Search query is required'));
+      return;
     }
 
     const filter = {
@@ -89,7 +90,7 @@ export class ProductController {
     res.json(ResponseUtils.paginated(products, Number(page), Number(limit), total, 'Search results retrieved successfully'));
   });
 
-  static getProductById = asyncHandler(async (req: Request, res: Response) => {
+  static getProductById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
@@ -108,7 +109,7 @@ export class ProductController {
     res.json(ResponseUtils.success(product, 'Product retrieved successfully'));
   });
 
-  static getProductBySlug = asyncHandler(async (req: Request, res: Response) => {
+  static getProductBySlug = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { slug } = req.params;
 
     const product = await Product.findOne({ 'seo.slug': slug })
@@ -123,13 +124,14 @@ export class ProductController {
     res.json(ResponseUtils.success(product, 'Product retrieved successfully'));
   });
 
-  static createProduct = asyncHandler(async (req: Request, res: Response) => {
+  static createProduct = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const productData = req.body;
     const userId = req.user?.userId;
 
     const category = await Category.findById(productData.category);
     if (!category) {
-      return res.status(400).json(ResponseUtils.error('Invalid category'));
+      res.status(400).json(ResponseUtils.error('Invalid category'));
+      return;
     }
 
     if (!productData.sku) {
@@ -157,7 +159,7 @@ export class ProductController {
     res.status(201).json(ResponseUtils.success(populatedProduct, 'Product created successfully'));
   });
 
-  static updateProduct = asyncHandler(async (req: Request, res: Response) => {
+  static updateProduct = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const updates = req.body;
     const userId = req.user?.userId;
@@ -184,7 +186,7 @@ export class ProductController {
     res.json(ResponseUtils.success(product, 'Product updated successfully'));
   });
 
-  static deleteProduct = asyncHandler(async (req: Request, res: Response) => {
+  static deleteProduct = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const userId = req.user?.userId;
 
@@ -206,7 +208,7 @@ export class ProductController {
     res.json(ResponseUtils.success(null, 'Product deleted successfully'));
   });
 
-  static uploadImages = asyncHandler(async (req: Request, res: Response) => {
+  static uploadImages = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { images } = req.body;
 
@@ -227,7 +229,7 @@ export class ProductController {
     res.json(ResponseUtils.success(product.images, 'Images uploaded successfully'));
   });
 
-  static deleteImage = asyncHandler(async (req: Request, res: Response) => {
+  static deleteImage = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id, imageId } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id) || !DatabaseUtils.isValidObjectId(imageId)) {
@@ -245,7 +247,7 @@ export class ProductController {
     res.json(ResponseUtils.success(null, 'Image deleted successfully'));
   });
 
-  static addVariant = asyncHandler(async (req: Request, res: Response) => {
+  static addVariant = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const variantData = req.body;
 
@@ -265,7 +267,7 @@ export class ProductController {
     res.status(201).json(ResponseUtils.success(newVariant, 'Variant added successfully'));
   });
 
-  static updateVariant = asyncHandler(async (req: Request, res: Response) => {
+  static updateVariant = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id, variantId } = req.params;
     const updates = req.body;
 
@@ -280,7 +282,8 @@ export class ProductController {
 
     const variant = product.variants.find(v => v._id?.toString() === variantId);
     if (!variant) {
-      return res.status(404).json(ResponseUtils.error('Variant not found'));
+      res.status(404).json(ResponseUtils.error('Variant not found'));
+      return;
     }
 
     Object.assign(variant, updates);
@@ -289,7 +292,7 @@ export class ProductController {
     res.json(ResponseUtils.success(variant, 'Variant updated successfully'));
   });
 
-  static deleteVariant = asyncHandler(async (req: Request, res: Response) => {
+  static deleteVariant = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id, variantId } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id) || !DatabaseUtils.isValidObjectId(variantId)) {

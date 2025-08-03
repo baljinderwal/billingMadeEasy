@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import Payment from '../models/Payment';
 
 export class PaymentController {
-  static getPayments = asyncHandler(async (req: Request, res: Response) => {
+  static getPayments = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { page = 1, limit = 20, status, method, gateway } = req.query;
 
@@ -42,12 +42,13 @@ export class PaymentController {
     res.json(ResponseUtils.paginated(payments, Number(page), Number(limit), total, 'Payments retrieved successfully'));
   });
 
-  static getPaymentById = asyncHandler(async (req: Request, res: Response) => {
+  static getPaymentById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const userId = req.user?.userId;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid payment ID'));
+      res.status(400).json(ResponseUtils.error('Invalid payment ID'));
+      return;
     }
 
     const filter: any = { _id: id };
@@ -61,18 +62,20 @@ export class PaymentController {
       .lean();
 
     if (!payment) {
-      return res.status(404).json(ResponseUtils.error('Payment not found'));
+      res.status(404).json(ResponseUtils.error('Payment not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(payment, 'Payment retrieved successfully'));
   });
 
-  static createPayment = asyncHandler(async (req: Request, res: Response) => {
+  static createPayment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { orderId, amount, currency = 'INR', method, gateway } = req.body;
     const userId = req.user?.userId;
 
     if (!DatabaseUtils.isValidObjectId(orderId)) {
-      return res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      return;
     }
 
     let gatewayResponse;
@@ -83,7 +86,8 @@ export class PaymentController {
       } else if (gateway === 'stripe') {
         gatewayResponse = await PaymentController.createStripePaymentIntent(amount, currency);
       } else {
-        return res.status(400).json(ResponseUtils.error('Unsupported payment gateway'));
+        res.status(400).json(ResponseUtils.error('Unsupported payment gateway'));
+        return;
       }
 
       const paymentData: any = {
@@ -112,16 +116,18 @@ export class PaymentController {
     }
   });
 
-  static verifyPayment = asyncHandler(async (req: Request, res: Response) => {
+  static verifyPayment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { paymentId, gatewayPaymentId, gatewayOrderId, signature } = req.body;
 
     if (!paymentId) {
-      return res.status(400).json(ResponseUtils.error('Payment ID is required'));
+      res.status(400).json(ResponseUtils.error('Payment ID is required'));
+      return;
     }
 
     const payment = await Payment.findOne({ paymentId });
     if (!payment) {
-      return res.status(404).json(ResponseUtils.error('Payment not found'));
+      res.status(404).json(ResponseUtils.error('Payment not found'));
+      return;
     }
 
     try {
@@ -157,7 +163,7 @@ export class PaymentController {
     }
   });
 
-  static razorpayWebhook = asyncHandler(async (req: Request, res: Response) => {
+  static razorpayWebhook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const signature = req.headers['x-razorpay-signature'] as string;
     const payload = JSON.stringify(req.body);
 
@@ -165,7 +171,8 @@ export class PaymentController {
       const isValid = PaymentController.verifyRazorpayWebhook(payload, signature);
       
       if (!isValid) {
-        return res.status(400).json(ResponseUtils.error('Invalid webhook signature'));
+        res.status(400).json(ResponseUtils.error('Invalid webhook signature'));
+        return;
       }
 
       const event = req.body;
@@ -193,7 +200,7 @@ export class PaymentController {
     }
   });
 
-  static stripeWebhook = asyncHandler(async (req: Request, res: Response) => {
+  static stripeWebhook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const signature = req.headers['stripe-signature'] as string;
 
     try {
@@ -219,13 +226,14 @@ export class PaymentController {
     }
   });
 
-  static initiateRefund = asyncHandler(async (req: Request, res: Response) => {
+  static initiateRefund = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { amount, reason } = req.body;
     const userId = req.user?.userId;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid payment ID'));
+      res.status(400).json(ResponseUtils.error('Invalid payment ID'));
+      return;
     }
 
     const filter: any = { _id: id };
@@ -235,11 +243,13 @@ export class PaymentController {
 
     const payment = await Payment.findOne(filter);
     if (!payment) {
-      return res.status(404).json(ResponseUtils.error('Payment not found'));
+      res.status(404).json(ResponseUtils.error('Payment not found'));
+      return;
     }
 
     if (payment.status !== 'completed') {
-      return res.status(400).json(ResponseUtils.error('Payment must be completed to initiate refund'));
+      res.status(400).json(ResponseUtils.error('Payment must be completed to initiate refund'));
+      return;
     }
 
     try {
@@ -250,7 +260,8 @@ export class PaymentController {
       } else if (payment.gateway === 'stripe') {
         refundResponse = await PaymentController.createStripeRefund(payment.gatewayPaymentId!, amount);
       } else {
-        return res.status(400).json(ResponseUtils.error('Unsupported payment gateway for refunds'));
+        res.status(400).json(ResponseUtils.error('Unsupported payment gateway for refunds'));
+        return;
       }
 
       const refund = {
@@ -273,11 +284,12 @@ export class PaymentController {
     }
   });
 
-  static getPaymentStatus = asyncHandler(async (req: Request, res: Response) => {
+  static getPaymentStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid payment ID'));
+      res.status(400).json(ResponseUtils.error('Invalid payment ID'));
+      return;
     }
 
     const payment = await Payment.findById(id)
@@ -285,13 +297,14 @@ export class PaymentController {
       .lean();
 
     if (!payment) {
-      return res.status(404).json(ResponseUtils.error('Payment not found'));
+      res.status(404).json(ResponseUtils.error('Payment not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(payment, 'Payment status retrieved successfully'));
   });
 
-  static getAvailablePaymentMethods = asyncHandler(async (req: Request, res: Response) => {
+  static getAvailablePaymentMethods = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const paymentMethods = [
       { id: 'card', name: 'Credit/Debit Card', icon: 'card', enabled: true },
       { id: 'upi', name: 'UPI', icon: 'upi', enabled: true },

@@ -1,21 +1,22 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import User from '../models/User';
 
 export class UserController {
-  static getProfile = asyncHandler(async (req: Request, res: Response) => {
+  static getProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
 
     const user = await User.findById(userId).select('-password');
     if (!user) {
-      return res.status(404).json(ResponseUtils.error('User not found'));
+      res.status(404).json(ResponseUtils.error('User not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(user, 'Profile retrieved successfully'));
   });
 
-  static updateProfile = asyncHandler(async (req: Request, res: Response) => {
+  static updateProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const updates = req.body;
 
@@ -26,13 +27,14 @@ export class UserController {
     ).select('-password');
 
     if (!user) {
-      return res.status(404).json(ResponseUtils.error('User not found'));
+      res.status(404).json(ResponseUtils.error('User not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(user, 'Profile updated successfully'));
   });
 
-  static deleteAccount = asyncHandler(async (req: Request, res: Response) => {
+  static deleteAccount = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
 
     await User.findByIdAndDelete(userId);
@@ -40,16 +42,18 @@ export class UserController {
     res.json(ResponseUtils.success(null, 'Account deleted successfully'));
   });
 
-  static getUserById = asyncHandler(async (req: Request, res: Response) => {
+  static getUserById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid user ID'));
+      res.status(400).json(ResponseUtils.error('Invalid user ID'));
+      return;
     }
 
     const user = await User.findById(id).select('-password -addresses');
     if (!user) {
-      return res.status(404).json(ResponseUtils.error('User not found'));
+      res.status(404).json(ResponseUtils.error('User not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(user, 'User retrieved successfully'));

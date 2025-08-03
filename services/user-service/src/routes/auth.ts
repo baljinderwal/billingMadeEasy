@@ -1,7 +1,7 @@
 import express from 'express';
 import { AuthController } from '../controllers/AuthController';
-import { validateBody, authLimiter } from '@billing/middleware';
-import { userValidation } from '@billing/utils';
+import { validateBody, authLimiter } from '../../../../shared/middleware/dist/index.js';
+import { userValidation } from '../../../../shared/utils/dist/index.js';
 
 const router = express.Router();
 

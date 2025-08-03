@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils, HelperUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils, HelperUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import Order from '../models/Order';
 
 export class OrderController {
-  static getOrders = asyncHandler(async (req: Request, res: Response) => {
+  static getOrders = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { page = 1, limit = 20, status, startDate, endDate } = req.query;
 
@@ -39,12 +39,13 @@ export class OrderController {
     res.json(ResponseUtils.paginated(orders, Number(page), Number(limit), total, 'Orders retrieved successfully'));
   });
 
-  static getOrderById = asyncHandler(async (req: Request, res: Response) => {
+  static getOrderById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const userId = req.user?.userId;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      return;
     }
 
     const filter: any = { _id: id };
@@ -57,13 +58,14 @@ export class OrderController {
       .lean();
 
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(order, 'Order retrieved successfully'));
   });
 
-  static getOrderByNumber = asyncHandler(async (req: Request, res: Response) => {
+  static getOrderByNumber = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { orderNumber } = req.params;
     const userId = req.user?.userId;
 
@@ -77,13 +79,14 @@ export class OrderController {
       .lean();
 
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(order, 'Order retrieved successfully'));
   });
 
-  static createOrder = asyncHandler(async (req: Request, res: Response) => {
+  static createOrder = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const orderData = req.body;
     const userId = req.user?.userId;
 
@@ -100,17 +103,19 @@ export class OrderController {
     res.status(201).json(ResponseUtils.success(populatedOrder, 'Order created successfully'));
   });
 
-  static updateOrderStatus = asyncHandler(async (req: Request, res: Response) => {
+  static updateOrderStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { status, note } = req.body;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      return;
     }
 
     const order = await Order.findById(id);
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     order.status = status;
@@ -131,12 +136,13 @@ export class OrderController {
     res.json(ResponseUtils.success(order, 'Order status updated successfully'));
   });
 
-  static updateShipping = asyncHandler(async (req: Request, res: Response) => {
+  static updateShipping = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { trackingNumber, shippingMethod, estimatedDelivery } = req.body;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      return;
     }
 
     const order = await Order.findByIdAndUpdate(
@@ -151,19 +157,21 @@ export class OrderController {
     );
 
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     res.json(ResponseUtils.success(order, 'Shipping information updated successfully'));
   });
 
-  static requestRefund = asyncHandler(async (req: Request, res: Response) => {
+  static requestRefund = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { amount, reason } = req.body;
     const userId = req.user?.userId;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      return;
     }
 
     const filter: any = { _id: id };
@@ -173,7 +181,8 @@ export class OrderController {
 
     const order = await Order.findOne(filter);
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     order.refunds.push({
@@ -188,22 +197,25 @@ export class OrderController {
     res.json(ResponseUtils.success(order, 'Refund request submitted successfully'));
   });
 
-  static processRefund = asyncHandler(async (req: Request, res: Response) => {
+  static processRefund = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id, refundId } = req.params;
     const { status } = req.body;
 
     if (!DatabaseUtils.isValidObjectId(id) || !DatabaseUtils.isValidObjectId(refundId)) {
-      return res.status(400).json(ResponseUtils.error('Invalid ID'));
+      res.status(400).json(ResponseUtils.error('Invalid ID'));
+      return;
     }
 
     const order = await Order.findById(id);
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     const refund = order.refunds.id(refundId);
     if (!refund) {
-      return res.status(404).json(ResponseUtils.error('Refund not found'));
+      res.status(404).json(ResponseUtils.error('Refund not found'));
+      return;
     }
 
     refund.status = status;
@@ -217,12 +229,13 @@ export class OrderController {
     res.json(ResponseUtils.success(order, 'Refund processed successfully'));
   });
 
-  static generateInvoice = asyncHandler(async (req: Request, res: Response) => {
+  static generateInvoice = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const userId = req.user?.userId;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      return;
     }
 
     const filter: any = { _id: id };
@@ -235,7 +248,8 @@ export class OrderController {
       .lean();
 
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     const invoice = {
@@ -256,11 +270,12 @@ export class OrderController {
     res.json(ResponseUtils.success(invoice, 'Invoice generated successfully'));
   });
 
-  static getTrackingInfo = asyncHandler(async (req: Request, res: Response) => {
+  static getTrackingInfo = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (!DatabaseUtils.isValidObjectId(id)) {
-      return res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      res.status(400).json(ResponseUtils.error('Invalid order ID'));
+      return;
     }
 
     const order = await Order.findById(id)
@@ -268,7 +283,8 @@ export class OrderController {
       .lean();
 
     if (!order) {
-      return res.status(404).json(ResponseUtils.error('Order not found'));
+      res.status(404).json(ResponseUtils.error('Order not found'));
+      return;
     }
 
     const trackingInfo = {

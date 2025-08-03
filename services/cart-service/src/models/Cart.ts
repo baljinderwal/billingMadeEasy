@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Cart, CartItem } from '@billing/types';
+import { Cart, CartItem } from '../../../shared/types/dist/index.js';
 
 const CartItemSchema = new Schema<CartItem>({
   productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },

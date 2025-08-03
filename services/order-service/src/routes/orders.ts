@@ -1,6 +1,6 @@
 import express from 'express';
 import { OrderController } from '../controllers/OrderController';
-import { authenticateToken, validateBody, validateQuery, validateParams, idParamSchema, paginationSchema } from '@billing/middleware';
+import { authenticateToken, validateBody, validateQuery, validateParams, idParamSchema, paginationSchema } from '../../../../shared/middleware/dist/index.js';
 
 const router = express.Router();
 

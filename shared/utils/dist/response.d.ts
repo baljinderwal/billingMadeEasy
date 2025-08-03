@@ -1,4 +1,4 @@
-import { ApiResponse, ServiceResponse } from '@billing/types';
+import { ApiResponse, ServiceResponse } from '../../types/dist/index';
 export declare class ResponseUtils {
     static success<T>(data?: T, message?: string): ApiResponse<T>;
     static error(message: string, error?: string): ApiResponse;

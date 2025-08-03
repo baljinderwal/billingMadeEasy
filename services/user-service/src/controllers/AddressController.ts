@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import User from '../models/User';
 
 export class AddressController {
-  static getAddresses = asyncHandler(async (req: Request, res: Response) => {
+  static getAddresses = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
 
     const user = await User.findById(userId).select('addresses');
@@ -15,7 +15,7 @@ export class AddressController {
     res.json(ResponseUtils.success(user.addresses, 'Addresses retrieved successfully'));
   });
 
-  static createAddress = asyncHandler(async (req: Request, res: Response) => {
+  static createAddress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const addressData = req.body;
 
@@ -35,7 +35,7 @@ export class AddressController {
     res.status(201).json(ResponseUtils.success(newAddress, 'Address created successfully'));
   });
 
-  static updateAddress = asyncHandler(async (req: Request, res: Response) => {
+  static updateAddress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { id } = req.params;
     const updates = req.body;
@@ -64,7 +64,7 @@ export class AddressController {
     res.json(ResponseUtils.success(address, 'Address updated successfully'));
   });
 
-  static deleteAddress = asyncHandler(async (req: Request, res: Response) => {
+  static deleteAddress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { id } = req.params;
 
@@ -88,7 +88,7 @@ export class AddressController {
     res.json(ResponseUtils.success(null, 'Address deleted successfully'));
   });
 
-  static setDefaultAddress = asyncHandler(async (req: Request, res: Response) => {
+  static setDefaultAddress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const { id } = req.params;
 

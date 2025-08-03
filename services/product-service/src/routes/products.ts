@@ -1,7 +1,7 @@
 import express from 'express';
 import { ProductController } from '../controllers/ProductController';
-import { authenticateToken, optionalAuth, validateBody, validateQuery, validateParams, idParamSchema, paginationSchema } from '@billing/middleware';
-import { productValidation } from '@billing/utils';
+import { authenticateToken, optionalAuth, validateBody, validateQuery, validateParams, idParamSchema, paginationSchema } from '../../../shared/middleware/dist/index.js';
+import { productValidation } from '../../../shared/utils/dist/index.js';
 
 const router = express.Router();
 

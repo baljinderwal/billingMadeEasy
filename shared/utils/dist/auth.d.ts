@@ -1,4 +1,4 @@
-import { JWTPayload } from '@billing/types';
+import { JWTPayload } from '../../types/dist/index';
 export declare class AuthUtils {
     static hashPassword(password: string): Promise<string>;
     static comparePassword(password: string, hashedPassword: string): Promise<boolean>;

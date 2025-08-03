@@ -321,4 +321,246 @@ export interface ServiceResponse<T = any> {
     error?: string;
     statusCode?: number;
 }
+export interface IVendor extends Document {
+    _id: Types.ObjectId;
+    userId: Types.ObjectId;
+    businessName: string;
+    businessType: 'individual' | 'company' | 'partnership';
+    contactPerson: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string;
+    };
+    businessAddress: IAddress;
+    documents: {
+        gst?: string;
+        pan?: string;
+        bankAccount: {
+            accountNumber: string;
+            ifscCode: string;
+            accountHolderName: string;
+            bankName: string;
+        };
+        businessLicense?: string;
+    };
+    kycStatus: 'pending' | 'under_review' | 'approved' | 'rejected';
+    status: 'active' | 'inactive' | 'suspended';
+    commission: {
+        type: 'percentage' | 'fixed';
+        value: number;
+        categoryOverrides?: {
+            categoryId: Types.ObjectId;
+            value: number;
+        }[];
+    };
+    storeInfo: {
+        name: string;
+        description?: string;
+        logo?: string;
+        banner?: string;
+        slug: string;
+    };
+    ratings: {
+        average: number;
+        count: number;
+    };
+    totalSales: number;
+    totalOrders: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface ICampaign extends Document {
+    _id: Types.ObjectId;
+    name: string;
+    description?: string;
+    type: 'email' | 'sms' | 'push' | 'social';
+    status: 'draft' | 'scheduled' | 'active' | 'paused' | 'completed';
+    targetAudience: {
+        userSegments?: string[];
+        categories?: Types.ObjectId[];
+        minOrderValue?: number;
+        lastPurchaseDate?: Date;
+        loyaltyTier?: string[];
+    };
+    content: {
+        subject?: string;
+        message: string;
+        template?: string;
+        images?: string[];
+        cta?: {
+            text: string;
+            url: string;
+        };
+    };
+    schedule: {
+        startDate: Date;
+        endDate?: Date;
+        timezone: string;
+        frequency?: 'once' | 'daily' | 'weekly' | 'monthly';
+    };
+    metrics: {
+        sent: number;
+        delivered: number;
+        opened: number;
+        clicked: number;
+        converted: number;
+        revenue: number;
+    };
+    createdBy: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface IPromotion extends Document {
+    _id: Types.ObjectId;
+    name: string;
+    description?: string;
+    type: 'discount' | 'bogo' | 'flash_sale' | 'bundle' | 'shipping';
+    status: 'active' | 'inactive' | 'scheduled' | 'expired';
+    rules: {
+        discountType?: 'percentage' | 'fixed';
+        discountValue?: number;
+        minimumAmount?: number;
+        maximumDiscount?: number;
+        buyQuantity?: number;
+        getQuantity?: number;
+        applicableProducts?: Types.ObjectId[];
+        applicableCategories?: Types.ObjectId[];
+        excludedProducts?: Types.ObjectId[];
+    };
+    schedule: {
+        startDate: Date;
+        endDate: Date;
+        timezone: string;
+    };
+    usage: {
+        totalLimit?: number;
+        userLimit?: number;
+        usedCount: number;
+    };
+    priority: number;
+    createdBy: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface INotification extends Document {
+    _id: Types.ObjectId;
+    userId?: Types.ObjectId;
+    type: 'order' | 'payment' | 'shipping' | 'marketing' | 'system';
+    channel: 'email' | 'sms' | 'push' | 'in_app';
+    title: string;
+    message: string;
+    data?: any;
+    status: 'pending' | 'sent' | 'delivered' | 'failed' | 'read';
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    scheduledAt?: Date;
+    sentAt?: Date;
+    readAt?: Date;
+    metadata: {
+        campaignId?: Types.ObjectId;
+        orderId?: Types.ObjectId;
+        templateId?: Types.ObjectId;
+    };
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface IAnalytics extends Document {
+    _id: Types.ObjectId;
+    type: 'sales' | 'traffic' | 'conversion' | 'product' | 'customer';
+    period: 'hourly' | 'daily' | 'weekly' | 'monthly';
+    date: Date;
+    metrics: {
+        [key: string]: number;
+    };
+    dimensions: {
+        [key: string]: string | number;
+    };
+    createdAt: Date;
+}
+export interface IReferral extends Document {
+    _id: Types.ObjectId;
+    referrerId: Types.ObjectId;
+    refereeId?: Types.ObjectId;
+    code: string;
+    status: 'pending' | 'completed' | 'expired';
+    reward: {
+        referrerReward: {
+            type: 'percentage' | 'fixed' | 'points';
+            value: number;
+        };
+        refereeReward: {
+            type: 'percentage' | 'fixed' | 'points';
+            value: number;
+        };
+    };
+    orderId?: Types.ObjectId;
+    completedAt?: Date;
+    expiresAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface ILoyaltyProgram extends Document {
+    _id: Types.ObjectId;
+    name: string;
+    description?: string;
+    status: 'active' | 'inactive';
+    tiers: {
+        name: string;
+        minPoints: number;
+        benefits: {
+            discountPercentage?: number;
+            freeShipping?: boolean;
+            earlyAccess?: boolean;
+            specialSupport?: boolean;
+        };
+    }[];
+    pointsConfig: {
+        earnRate: number;
+        redemptionRate: number;
+        expiryDays?: number;
+    };
+    rules: {
+        minOrderValue?: number;
+        maxPointsPerOrder?: number;
+        excludedCategories?: Types.ObjectId[];
+    };
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface IUserLoyalty extends Document {
+    _id: Types.ObjectId;
+    userId: Types.ObjectId;
+    programId: Types.ObjectId;
+    points: number;
+    tier: string;
+    totalEarned: number;
+    totalRedeemed: number;
+    transactions: {
+        type: 'earned' | 'redeemed' | 'expired';
+        points: number;
+        orderId?: Types.ObjectId;
+        description: string;
+        date: Date;
+    }[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface MarketingQuery extends PaginationQuery {
+    type?: string;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+}
+export interface VendorQuery extends PaginationQuery {
+    status?: string;
+    kycStatus?: string;
+    businessType?: string;
+}
+export interface AnalyticsQuery {
+    type: string;
+    period: string;
+    startDate: string;
+    endDate: string;
+    dimensions?: string[];
+}
 //# sourceMappingURL=index.d.ts.map

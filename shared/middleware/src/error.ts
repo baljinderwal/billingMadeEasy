@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ResponseUtils } from '@billing/utils';
+import { ResponseUtils } from '../../utils/dist/index';
 
 export interface AppError extends Error {
   statusCode?: number;

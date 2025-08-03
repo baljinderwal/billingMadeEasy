@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Payment, PaymentMethod, PaymentStatus } from '@billing/types';
+import { Payment, PaymentMethod, PaymentStatus } from '../../../../shared/types/dist/index.js';
 
 const PaymentSchema = new Schema<Payment>({
   paymentId: { type: String, required: true, unique: true },

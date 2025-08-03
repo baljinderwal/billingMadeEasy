@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requireCustomer = exports.requireVendor = exports.requireAdmin = exports.requireRole = exports.optionalAuth = exports.authenticateToken = void 0;
+exports.authorize = exports.authenticate = exports.requireCustomer = exports.requireVendor = exports.requireAdmin = exports.requireRole = exports.optionalAuth = exports.authenticateToken = void 0;
 const utils_1 = require("@billing/utils");
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -47,4 +47,7 @@ exports.requireRole = requireRole;
 exports.requireAdmin = (0, exports.requireRole)(['admin']);
 exports.requireVendor = (0, exports.requireRole)(['admin', 'vendor']);
 exports.requireCustomer = (0, exports.requireRole)(['admin', 'customer']);
+exports.authenticate = exports.authenticateToken;
+const authorize = (roles) => (0, exports.requireRole)(roles);
+exports.authorize = authorize;
 //# sourceMappingURL=auth.js.map

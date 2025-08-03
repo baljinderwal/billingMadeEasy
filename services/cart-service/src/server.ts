@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { errorHandler, notFoundHandler, requestLogger, corsMiddleware } from '@billing/middleware';
+import { errorHandler, notFoundHandler, requestLogger, corsMiddleware } from '../../../shared/middleware/dist/index.js';
 import cartRoutes from './routes/cart';
 
 dotenv.config();

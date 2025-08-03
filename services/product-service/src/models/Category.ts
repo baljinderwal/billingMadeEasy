@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { ICategory } from '@billing/types';
+import { ICategory } from '../../../../shared/types/dist/index.js';
 
 const CategorySchema = new Schema<ICategory>({
   name: { type: String, required: true },

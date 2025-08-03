@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Order, OrderItem, ShippingAddress, OrderStatus } from '@billing/types';
+import { Order, OrderItem, ShippingAddress, OrderStatus } from '../../../../shared/types/dist/index.js';
 
 const OrderItemSchema = new Schema<OrderItem>({
   productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },

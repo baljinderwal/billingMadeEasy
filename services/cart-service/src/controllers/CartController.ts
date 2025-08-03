@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ResponseUtils, DatabaseUtils } from '@billing/utils';
-import { asyncHandler } from '@billing/middleware';
+import { ResponseUtils, DatabaseUtils } from '../../../../shared/utils/dist/index.js';
+import { asyncHandler } from '../../../../shared/middleware/dist/index.js';
 import Cart from '../models/Cart';
 
 export class CartController {
-  static getCart = asyncHandler(async (req: Request, res: Response) => {
+  static getCart = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const sessionId = req.headers['x-session-id'] as string;
 
@@ -27,13 +27,14 @@ export class CartController {
     res.json(ResponseUtils.success(cart, 'Cart retrieved successfully'));
   });
 
-  static addItem = asyncHandler(async (req: Request, res: Response) => {
+  static addItem = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { productId, variantId, quantity, price, originalPrice } = req.body;
     const userId = req.user?.userId;
     const sessionId = req.headers['x-session-id'] as string;
 
     if (!DatabaseUtils.isValidObjectId(productId)) {
-      return res.status(400).json(ResponseUtils.error('Invalid product ID'));
+      res.status(400).json(ResponseUtils.error('Invalid product ID'));
+      return;
     }
 
     let cart;
@@ -76,14 +77,15 @@ export class CartController {
     res.json(ResponseUtils.success(cart, 'Item added to cart successfully'));
   });
 
-  static updateItem = asyncHandler(async (req: Request, res: Response) => {
+  static updateItem = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { itemId } = req.params;
     const { quantity } = req.body;
     const userId = req.user?.userId;
     const sessionId = req.headers['x-session-id'] as string;
 
     if (!DatabaseUtils.isValidObjectId(itemId)) {
-      return res.status(400).json(ResponseUtils.error('Invalid item ID'));
+      res.status(400).json(ResponseUtils.error('Invalid item ID'));
+      return;
     }
 
     let cart;
@@ -94,12 +96,14 @@ export class CartController {
     }
 
     if (!cart) {
-      return res.status(404).json(ResponseUtils.error('Cart not found'));
+      res.status(404).json(ResponseUtils.error('Cart not found'));
+      return;
     }
 
     const item = cart.items.id(itemId);
     if (!item) {
-      return res.status(404).json(ResponseUtils.error('Item not found in cart'));
+      res.status(404).json(ResponseUtils.error('Item not found in cart'));
+      return;
     }
 
     if (quantity <= 0) {
@@ -114,13 +118,14 @@ export class CartController {
     res.json(ResponseUtils.success(cart, 'Cart item updated successfully'));
   });
 
-  static removeItem = asyncHandler(async (req: Request, res: Response) => {
+  static removeItem = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { itemId } = req.params;
     const userId = req.user?.userId;
     const sessionId = req.headers['x-session-id'] as string;
 
     if (!DatabaseUtils.isValidObjectId(itemId)) {
-      return res.status(400).json(ResponseUtils.error('Invalid item ID'));
+      res.status(400).json(ResponseUtils.error('Invalid item ID'));
+      return;
     }
 
     let cart;
@@ -131,7 +136,8 @@ export class CartController {
     }
 
     if (!cart) {
-      return res.status(404).json(ResponseUtils.error('Cart not found'));
+      res.status(404).json(ResponseUtils.error('Cart not found'));
+      return;
     }
 
     cart.items.pull(itemId);
@@ -141,7 +147,7 @@ export class CartController {
     res.json(ResponseUtils.success(cart, 'Item removed from cart successfully'));
   });
 
-  static clearCart = asyncHandler(async (req: Request, res: Response) => {
+  static clearCart = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const sessionId = req.headers['x-session-id'] as string;
 
@@ -153,7 +159,8 @@ export class CartController {
     }
 
     if (!cart) {
-      return res.status(404).json(ResponseUtils.error('Cart not found'));
+      res.status(404).json(ResponseUtils.error('Cart not found'));
+      return;
     }
 
     cart.items = [];
@@ -164,7 +171,7 @@ export class CartController {
     res.json(ResponseUtils.success(cart, 'Cart cleared successfully'));
   });
 
-  static applyCoupon = asyncHandler(async (req: Request, res: Response) => {
+  static applyCoupon = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { couponCode } = req.body;
     const userId = req.user?.userId;
     const sessionId = req.headers['x-session-id'] as string;
@@ -177,7 +184,8 @@ export class CartController {
     }
 
     if (!cart) {
-      return res.status(404).json(ResponseUtils.error('Cart not found'));
+      res.status(404).json(ResponseUtils.error('Cart not found'));
+      return;
     }
 
     const discount = 100;
@@ -188,7 +196,7 @@ export class CartController {
     res.json(ResponseUtils.success(cart, 'Coupon applied successfully'));
   });
 
-  static removeCoupon = asyncHandler(async (req: Request, res: Response) => {
+  static removeCoupon = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const sessionId = req.headers['x-session-id'] as string;
 
@@ -200,7 +208,8 @@ export class CartController {
     }
 
     if (!cart) {
-      return res.status(404).json(ResponseUtils.error('Cart not found'));
+      res.status(404).json(ResponseUtils.error('Cart not found'));
+      return;
     }
 
     cart.couponCode = undefined;
@@ -210,20 +219,21 @@ export class CartController {
     res.json(ResponseUtils.success(cart, 'Coupon removed successfully'));
   });
 
-  static saveForLater = asyncHandler(async (req: Request, res: Response) => {
+  static saveForLater = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     res.json(ResponseUtils.success(null, 'Save for later functionality coming soon'));
   });
 
-  static moveToCart = asyncHandler(async (req: Request, res: Response) => {
+  static moveToCart = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     res.json(ResponseUtils.success(null, 'Move to cart functionality coming soon'));
   });
 
-  static mergeGuestCart = asyncHandler(async (req: Request, res: Response) => {
+  static mergeGuestCart = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { guestCartId } = req.body;
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json(ResponseUtils.error('Authentication required'));
+      res.status(401).json(ResponseUtils.error('Authentication required'));
+      return;
     }
 
     const [userCart, guestCart] = await Promise.all([
@@ -232,14 +242,16 @@ export class CartController {
     ]);
 
     if (!guestCart) {
-      return res.status(404).json(ResponseUtils.error('Guest cart not found'));
+      res.status(404).json(ResponseUtils.error('Guest cart not found'));
+      return;
     }
 
     if (!userCart) {
       guestCart.userId = userId;
       guestCart.sessionId = undefined;
       await guestCart.save();
-      return res.json(ResponseUtils.success(guestCart, 'Guest cart merged successfully'));
+      res.json(ResponseUtils.success(guestCart, 'Guest cart merged successfully'));
+      return;
     }
 
     for (const guestItem of guestCart.items) {

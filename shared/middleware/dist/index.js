@@ -14,10 +14,13 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.notFound = void 0;
 __exportStar(require("./auth"), exports);
 __exportStar(require("./error"), exports);
 __exportStar(require("./validation"), exports);
 __exportStar(require("./cors"), exports);
 __exportStar(require("./rate-limit"), exports);
 __exportStar(require("./logging"), exports);
+var error_1 = require("./error");
+Object.defineProperty(exports, "notFound", { enumerable: true, get: function () { return error_1.notFoundHandler; } });
 //# sourceMappingURL=index.js.map

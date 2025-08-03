@@ -1,6 +1,6 @@
 import express from 'express';
 import { CartController } from '../controllers/CartController';
-import { authenticateToken, optionalAuth, validateBody, validateParams, idParamSchema } from '@billing/middleware';
+import { authenticateToken, optionalAuth, validateBody, validateParams, idParamSchema } from '../../../shared/middleware/dist/index.js';
 
 const router = express.Router();
 

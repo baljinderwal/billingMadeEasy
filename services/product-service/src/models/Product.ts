@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IProduct } from '@billing/types';
+import { IProduct } from '../../../../shared/types/dist/index.js';
 
 const ProductImageSchema = new Schema({
   url: { type: String, required: true },

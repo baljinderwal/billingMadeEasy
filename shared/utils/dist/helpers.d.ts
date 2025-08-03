@@ -9,6 +9,7 @@ export declare class HelperUtils {
     static isValidEmail(email: string): boolean;
     static isValidPhone(phone: string): boolean;
     static sanitizeString(str: string): string;
+    static generateReferralCode(): string;
     static generateRandomString(length: number): string;
     static debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void;
     static throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void;
