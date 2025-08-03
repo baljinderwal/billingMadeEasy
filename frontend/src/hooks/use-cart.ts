@@ -43,37 +43,47 @@ export function useCart() {
     queryFn: async (): Promise<Cart> => {
       if (!sessionId) return { id: '', items: [], total: 0, itemCount: 0 }
       
-      const response = await fetch(`${API_BASE_URL}/cart`, {
-        headers: {
-          'x-session-id': sessionId,
-        },
-      })
-      
-      if (!response.ok) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart`, {
+          headers: {
+            'x-session-id': sessionId,
+          },
+        })
+        
+        if (!response.ok) {
+          return { id: '', items: [], total: 0, itemCount: 0 }
+        }
+        
+        return response.json()
+      } catch (error) {
+        console.warn('Cart service unavailable, using local cart')
         return { id: '', items: [], total: 0, itemCount: 0 }
       }
-      
-      return response.json()
     },
     enabled: !!sessionId,
   })
 
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity = 1, variant }: { productId: string; quantity?: number; variant?: any }) => {
-      const response = await fetch(`${API_BASE_URL}/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': sessionId,
-        },
-        body: JSON.stringify({ productId, quantity, variant }),
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to add item to cart')
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-session-id': sessionId,
+          },
+          body: JSON.stringify({ productId, quantity, variant }),
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to add item to cart')
+        }
+        
+        return response.json()
+      } catch (error) {
+        console.warn('Cart service unavailable, item not added to cart')
+        throw new Error('Cart service unavailable. Please try again later.')
       }
-      
-      return response.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] })
@@ -82,20 +92,25 @@ export function useCart() {
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ itemId, quantity }: { itemId: string; quantity: number }) => {
-      const response = await fetch(`${API_BASE_URL}/cart/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': sessionId,
-        },
-        body: JSON.stringify({ itemId, quantity }),
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to update cart item')
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/update`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-session-id': sessionId,
+          },
+          body: JSON.stringify({ itemId, quantity }),
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to update cart item')
+        }
+        
+        return response.json()
+      } catch (error) {
+        console.warn('Cart service unavailable, quantity not updated')
+        throw new Error('Cart service unavailable. Please try again later.')
       }
-      
-      return response.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] })
@@ -104,20 +119,25 @@ export function useCart() {
 
   const removeFromCartMutation = useMutation({
     mutationFn: async (itemId: string) => {
-      const response = await fetch(`${API_BASE_URL}/cart/remove`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': sessionId,
-        },
-        body: JSON.stringify({ itemId }),
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to remove item from cart')
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/remove`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-session-id': sessionId,
+          },
+          body: JSON.stringify({ itemId }),
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to remove item from cart')
+        }
+        
+        return response.json()
+      } catch (error) {
+        console.warn('Cart service unavailable, item not removed')
+        throw new Error('Cart service unavailable. Please try again later.')
       }
-      
-      return response.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] })
@@ -126,18 +146,23 @@ export function useCart() {
 
   const clearCartMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/cart/clear`, {
-        method: 'DELETE',
-        headers: {
-          'x-session-id': sessionId,
-        },
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to clear cart')
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/clear`, {
+          method: 'DELETE',
+          headers: {
+            'x-session-id': sessionId,
+          },
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to clear cart')
+        }
+        
+        return response.json()
+      } catch (error) {
+        console.warn('Cart service unavailable, cart not cleared')
+        throw new Error('Cart service unavailable. Please try again later.')
       }
-      
-      return response.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] })
