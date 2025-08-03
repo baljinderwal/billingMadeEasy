@@ -239,7 +239,7 @@ export class ProductController {
       return res.status(404).json(ResponseUtils.error('Product not found'));
     }
 
-    product.images.pull(imageId);
+    product.images = product.images.filter(img => img._id?.toString() !== imageId);
     await product.save();
 
     res.json(ResponseUtils.success(null, 'Image deleted successfully'));
@@ -278,7 +278,7 @@ export class ProductController {
       return res.status(404).json(ResponseUtils.error('Product not found'));
     }
 
-    const variant = product.variants.id(variantId);
+    const variant = product.variants.find(v => v._id?.toString() === variantId);
     if (!variant) {
       return res.status(404).json(ResponseUtils.error('Variant not found'));
     }
@@ -301,7 +301,7 @@ export class ProductController {
       return res.status(404).json(ResponseUtils.error('Product not found'));
     }
 
-    product.variants.pull(variantId);
+    product.variants = product.variants.filter(v => v._id?.toString() !== variantId);
     await product.save();
 
     res.json(ResponseUtils.success(null, 'Variant deleted successfully'));
