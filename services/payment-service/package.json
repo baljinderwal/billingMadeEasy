@@ -17,10 +17,7 @@
     "redis": "^4.6.10",
     "dotenv": "^16.3.1",
     "razorpay": "^2.9.2",
-    "stripe": "^14.9.0",
-    "@billing/types": "^1.0.0",
-    "@billing/utils": "^1.0.0",
-    "@billing/middleware": "^1.0.0"
+    "stripe": "^14.9.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
-import { JWTPayload } from '@billing/types';
+import { JWTPayload } from '../../types/dist/index';
 
 export class AuthUtils {
   static async hashPassword(password: string): Promise<string> {
