@@ -60,40 +60,54 @@ function useAuthLogic() {
     queryFn: async (): Promise<User | null> => {
       if (!token) return null
       
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-      
-      if (!response.ok) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
+        
+        if (!response.ok) {
+          localStorage.removeItem('auth-token')
+          setToken(null)
+          return null
+        }
+        
+        const data = await response.json()
+        return data.user
+      } catch (error) {
+        console.warn('Auth service unavailable, running in offline mode')
         localStorage.removeItem('auth-token')
         setToken(null)
         return null
       }
-      
-      const data = await response.json()
-      return data.user
     },
     enabled: !!token,
   })
 
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-      
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Login failed')
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.message || 'Login failed')
+        }
+        
+        return response.json()
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('Auth service unavailable. Please try again later.')
       }
-      
-      return response.json()
     },
     onSuccess: (data) => {
       const { token: newToken } = data
@@ -105,20 +119,27 @@ function useAuthLogic() {
 
   const registerMutation = useMutation({
     mutationFn: async (userData: RegisterData) => {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      })
-      
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Registration failed')
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.message || 'Registration failed')
+        }
+        
+        return response.json()
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('Auth service unavailable. Please try again later.')
       }
-      
-      return response.json()
     },
     onSuccess: (data) => {
       const { token: newToken } = data
