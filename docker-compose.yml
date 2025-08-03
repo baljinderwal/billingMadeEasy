@@ -139,6 +139,101 @@ services:
       - mongodb
       - redis
 
+  # Phase 2 Services
+  marketing-service:
+    build:
+      context: ./services/marketing-service
+      dockerfile: Dockerfile
+    container_name: billing-marketing-service
+    restart: unless-stopped
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=development
+      - PORT=3006
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/billing_db?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - mongodb
+      - redis
+
+  analytics-service:
+    build:
+      context: ./services/analytics-service
+      dockerfile: Dockerfile
+    container_name: billing-analytics-service
+    restart: unless-stopped
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=development
+      - PORT=3007
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/billing_db?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - mongodb
+      - redis
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: billing-notification-service
+    restart: unless-stopped
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=development
+      - PORT=3008
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/billing_db?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - SENDGRID_API_KEY=your-sendgrid-api-key
+      - TWILIO_ACCOUNT_SID=your-twilio-account-sid
+      - TWILIO_AUTH_TOKEN=your-twilio-auth-token
+      - TWILIO_PHONE_NUMBER=your-twilio-phone-number
+    depends_on:
+      - mongodb
+      - redis
+
+  vendor-service:
+    build:
+      context: ./services/vendor-service
+      dockerfile: Dockerfile
+    container_name: billing-vendor-service
+    restart: unless-stopped
+    ports:
+      - "3009:3009"
+    environment:
+      - NODE_ENV=development
+      - PORT=3009
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/billing_db?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - mongodb
+      - redis
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: billing-frontend
+    restart: unless-stopped
+    ports:
+      - "8000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - api-gateway
+      - marketing-service
+      - analytics-service
+      - notification-service
+      - vendor-service
+
 volumes:
   mongodb_data:
   redis_data:

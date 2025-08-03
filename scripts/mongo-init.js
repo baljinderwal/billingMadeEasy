@@ -10,6 +10,17 @@ db.createCollection('reviews');
 db.createCollection('coupons');
 db.createCollection('vendors');
 
+db.createCollection('campaigns');
+db.createCollection('promotions');
+db.createCollection('referrals');
+db.createCollection('loyaltyprograms');
+db.createCollection('analytics');
+db.createCollection('notifications');
+db.createCollection('templates');
+db.createCollection('vendorapplications');
+db.createCollection('commissions');
+db.createCollection('payouts');
+
 db.products.createIndex({ "sku": 1 }, { unique: true });
 db.products.createIndex({ "name": "text", "description": "text" });
 db.products.createIndex({ "category": 1 });

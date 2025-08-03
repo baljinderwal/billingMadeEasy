@@ -21,9 +21,9 @@
     "joi": "^17.11.0",
     "redis": "^4.6.10",
     "node-cron": "^3.0.3",
-    "@billing/types": "workspace:*",
-    "@billing/utils": "workspace:*",
-    "@billing/middleware": "workspace:*"
+    "@billing/types": "file:../../shared/types",
+    "@billing/utils": "file:../../shared/utils",
+    "@billing/middleware": "file:../../shared/middleware"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
