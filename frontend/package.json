@@ -4,7 +4,7 @@
   "description": "Next.js frontend for billingMadeEasy e-commerce platform",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npx next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
